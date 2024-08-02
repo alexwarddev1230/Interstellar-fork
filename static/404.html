@@ -59,7 +59,7 @@
 
 <script>
   window.addEventListener("load", async () => {
-    const scriptUrl = "../../sw.js?v=6-17-2024";
+    const scriptUrl = location.origin + "/sw.js?v=6-17-2024";
     const scope = "/a/";
 
     // Show loading spinner
@@ -67,14 +67,18 @@
 
     try {
       const registrations = await navigator.serviceWorker.getRegistrations();
-      const isRegistered = registrations.some(registration => registration.active && registration.active.scriptURL === new URL(scriptUrl, location.origin).href);
+
+      const isRegistered = registrations.some(
+              registration => registration.active &&
+              registration.active.scriptURL === scriptUrl
+      );
 
       if (isRegistered) {
         console.log('Service Worker is already registered. This must be a real error');
         document.querySelector('.loading-spinner').style.display = 'none';
         document.querySelector('.error-message').style.display = 'block';
       } else {
-        const result = await navigator.serviceWorker.register(scriptUrl, { scope });
+        await navigator.serviceWorker.register(scriptUrl, { scope });
         console.log('SW Newly Registered. Reload');
 
         setTimeout(() => { // dont reload immediately in-case we get stuck in a loop somehow
