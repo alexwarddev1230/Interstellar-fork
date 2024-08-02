@@ -7,7 +7,7 @@
 		"node": ">=16.0.0"
 	},
 	"scripts": {
-		"start": "node index.js",
+		"start": "PORT=3000 node index.js",
 		"format": "biome format --write .",
 		"precommit": "biome check --write .",
 		"lint": "biome lint --write ."
