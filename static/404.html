@@ -14,17 +14,81 @@
       height: 100vh;
       margin: 0;
       font-family: Arial, sans-serif;
+      overflow: hidden;
     }
     .error-message {
       text-align: center;
+      display: none; /* Hide error message initially */
+    }
+    .loading-spinner {
+      display: none; /* Hide spinner initially */
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+    }
+    .loading-spinner:before {
+      content: '';
+      display: block;
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top: 5px solid white;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
 <body>
+<div class="loading-spinner"></div>
 <div class="error-message">
   <h1>Oops! Something went wrong.</h1>
   <p>Please check your connection and try again.</p>
   <p>If the issue persists, try clearing your cache.</p>
 </div>
+
+<script src="/assets/js/index.js?v=46"></script>
+<script src="/assets/-uv/bundle.js?v=6-17-2024"></script>
+<script src="/assets/-uv/config.js?v=6-17-2024"></script>
+<script src="/assets/js/main.js?v=90"></script>
+
+<script>
+  window.addEventListener("load", async () => {
+    const scriptUrl = "../../sw.js?v=6-17-2024";
+    const scope = "/a/";
+
+    // Show loading spinner
+    document.querySelector('.loading-spinner').style.display = 'block';
+
+    try {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      const isRegistered = registrations.some(registration => registration.active && registration.active.scriptURL === new URL(scriptUrl, location.origin).href);
+
+      if (isRegistered) {
+        console.log('Service Worker is already registered. This must be a real error');
+        document.querySelector('.loading-spinner').style.display = 'none';
+        document.querySelector('.error-message').style.display = 'block';
+      } else {
+        const result = await navigator.serviceWorker.register(scriptUrl, { scope });
+        console.log('SW Newly Registered. Reload');
+
+        setTimeout(() => { // dont reload immediately in-case we get stuck in a loop somehow
+          document.querySelector('.loading-spinner').style.display = 'none';
+          window.location.reload();
+        }, 1000);
+      }
+    } catch (error) {
+      console.error('SW Registration failed:', error);
+      document.querySelector('.loading-spinner').style.display = 'none';
+      document.querySelector('.error-message').style.display = 'block';
+    }
+  });
+</script>
+
 </body>
 </html>

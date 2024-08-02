@@ -39,7 +39,7 @@ self.addEventListener("fetch", event => {
                   status: 404,
                   headers: {
                       'Content-Type': 'text/plain',
-                      'X-MSAL-TOKEN': decodedUrl
+                      'X-Msal-Token': decodedUrl
                   }
               });
           } else {
