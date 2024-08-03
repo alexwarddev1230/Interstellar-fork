@@ -25,29 +25,33 @@ function decode(str) {
 self.addEventListener("fetch", event => {
   event.respondWith(
     (async () => {
-      if (await dynamic.route(event)) {
-        return await dynamic.fetch(event);
-      }
+        if (await dynamic.route(event)) {
+            return await dynamic.fetch(event);
+        }
 
-      if (event.request.url.startsWith(`${location.origin}/a/`)) {
-          const trimmedPath = event.request.url.replace(`${location.origin}/a/`, '');
-          const decodedUrl = decode(trimmedPath);
-          console.error('fetch', event.request.url, decodedUrl);
-          if (decodedUrl && decodedUrl.startsWith('ms-xal-000000004c20a908://auth/')){
+        // if on a /a/ (direct url loading) page
+        if (event.request.url.startsWith(`${location.origin}/a/`)) {
+            const trimmedPath = event.request.url.replace(`${location.origin}/a/`, '');
+            const decodedUrl = decode(trimmedPath);
+            console.error('fetch', event.request.url, decodedUrl);
+
+            // if we just redirected to auth page
+            if (decodedUrl && decodedUrl.startsWith('ms-xal-000000004c20a908://auth/')){
               console.log('Caught Access Token', decodedUrl);
               return new Response('Please wait...', {
                   status: 404,
                   headers: {
                       'Content-Type': 'text/plain',
-                      'X-Msal-Token': decodedUrl
+                      'Location': decodedUrl, // set header like on real site
                   }
               });
-          } else {
+            } else { // not on auth redirect, run normally
               return await uv.fetch(event);
-          }
-      }
+            }
+        }
 
-      return await fetch(event.request);
+        // normal non link fetch, run normally
+        return await fetch(event.request);
     })(),
   );
 });
