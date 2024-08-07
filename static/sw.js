@@ -39,7 +39,7 @@ self.addEventListener("fetch", event => {
             if (decodedUrl && decodedUrl.startsWith('ms-xal-000000004c20a908://auth/')){
               console.log('Caught Access Token', decodedUrl);
               return new Response('Please wait...', {
-                  status: 404,
+                  status: 200,
                   headers: {
                       'Content-Type': 'text/plain',
                       'Location': decodedUrl, // set header like on real site
